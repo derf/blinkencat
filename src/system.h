@@ -12,11 +12,12 @@ class System {
 		uint8_t red;
 		uint8_t green;
 		uint8_t blue;
-
-		void set_outputs();
+		uint8_t mode_changed;
 
 	public:
 
+		uint8_t anim_step_fine;
+		uint8_t anim_step_coarse;
 		void initialize(void);
 
 		void loop(void);
@@ -33,6 +34,8 @@ class System {
 			MAGENTA,
 			CYAN,
 			SUN,
+			FASTRGB,
+			SLOWRGB,
 			MODE_ENUM_MAX,
 		};
 
@@ -44,7 +47,7 @@ class System {
 
 		void debounce_start(void);
 
-		System() { btn_debounce = 0; mode = OFF; is_charging = 0; };
+		System() { btn_debounce = 0; mode = OFF; is_charging = 0; mode_changed = 0; };
 };
 
 extern System blinkencat;
