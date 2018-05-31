@@ -152,10 +152,12 @@ void System::next_mode(void)
 
 void System::debounce_start(void)
 {
-	btn_debounce = 1;
-	wdt_reset();
-	WDTCSR = _BV(WDE) | _BV(WDCE);
-	WDTCSR = _BV(WDIE) | _BV(WDP1) | _BV(WDP0);
+	if (!btn_debounce) {
+		btn_debounce = 1;
+		wdt_reset();
+		WDTCSR = _BV(WDE) | _BV(WDCE);
+		WDTCSR = _BV(WDIE) | _BV(WDP1) | _BV(WDP0);
+	}
 }
 
 void System::debounce_done(void)
