@@ -34,8 +34,10 @@ class System {
 			MAGENTA,
 			CYAN,
 			SUN,
-			FASTRGB,
 			SLOWRGB,
+			FASTRGB,
+			SLOWRGB2,
+			FASTRGB2,
 			MODE_ENUM_MAX,
 		};
 

@@ -42,6 +42,10 @@ const uint8_t pwmtable[32] PROGMEM = {
 };
 */
 
+/*
+// cos
+#define HSBTABLE_LEN 80
+#define HSBTABLE_MAX (3*HSBTABLE_LEN)
 uint8_t const hsbtable[80] PROGMEM = {
 	254, 254, 253, 252, 250, 248, 245, 242, 238, 234, 229, 224, 219, 213, 207,
 	201, 194, 188, 181, 174, 167, 160, 153, 146, 139, 133, 126, 119, 113, 106,
@@ -49,8 +53,28 @@ uint8_t const hsbtable[80] PROGMEM = {
 	23, 21, 19, 17, 16, 14, 13, 11, 10, 9, 8, 7, 6, 6, 5, 4, 4, 3, 3, 2, 2, 2,
 	1, 1, 1, 1, 0, 0, 0, 0, 0
 };
+*/
 
-#define HSBTABLE_LEN 80
+// linear
+#define HSBTABLE2_LEN 84
+#define HSBTABLE2_MAX (3*HSBTABLE_LEN)
+uint8_t const hsbtable2[84] PROGMEM = {
+	254, 239, 223, 209, 196, 183, 171, 160, 150, 140, 131, 123, 115, 108, 101,
+	94, 88, 82, 77, 72, 67, 63, 59, 55, 52, 48, 45, 42, 39, 37, 34, 32, 30, 28,
+	26, 24, 23, 21, 20, 19, 17, 16, 15, 14, 13, 12, 11, 11, 10, 9, 8, 8, 7, 7,
+	6, 6, 5, 5, 5, 4, 4, 4, 3, 3, 3, 3, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 0,
+	0, 0, 0, 0, 0
+};
+
+// linear for non-powerconscious HSB
+#define HSBTABLE_LEN 42
+#define HSBTABLE_MAX (6*HSBTABLE_LEN)
+uint8_t const hsbtable[42] PROGMEM = {
+	254, 223, 196, 171, 150, 131, 115, 101, 88, 77, 67, 59, 52, 45, 39, 34, 30,
+	26, 23, 20, 17, 15, 13, 11, 10, 8, 7, 6, 5, 5, 4, 3, 3, 2, 2, 2, 1, 1, 1, 0,
+	0, 0
+};
+
 
 void System::initialize()
 {
@@ -101,7 +125,7 @@ void System::loop()
 	uint8_t anim_step = 0;
 	if (mode_changed) {
 		mode_changed = 0;
-		if (mode == FASTRGB || mode == SLOWRGB) {
+		if (mode >= SLOWRGB) {
 			PORTD &= ~BIT_WW;
 			PORTB = 0;
 			// 8 bit fast PWM on OC0A, OC1A, OC1B
@@ -155,28 +179,46 @@ void System::loop()
 		}
 	}
 
-	if (mode == FASTRGB) {
+	if (mode == FASTRGB || mode == FASTRGB2) {
 		anim_step = anim_step_fine;
-	} else if (mode == SLOWRGB) {
+	} else if (mode == SLOWRGB || mode == SLOWRGB2) {
 		anim_step = anim_step_coarse;
 	}
 
 	if (mode == FASTRGB || mode == SLOWRGB) {
 		if (anim_step < HSBTABLE_LEN) {
-			PWM_RED = pgm_read_byte(&hsbtable[anim_step]);
 			PWM_GREEN = pgm_read_byte(&hsbtable[HSBTABLE_LEN - 1 - anim_step]);
-			PWM_BLUE = 0;
 		}
 		else if (anim_step < 2*HSBTABLE_LEN) {
-			PWM_RED = 0;
-			PWM_GREEN = pgm_read_byte(&hsbtable[anim_step - HSBTABLE_LEN]);
-			PWM_BLUE = pgm_read_byte(&hsbtable[2*HSBTABLE_LEN - 1 - anim_step]);
+			PWM_RED = pgm_read_byte(&hsbtable[anim_step - HSBTABLE_LEN]);
 		}
 		else if (anim_step < 3*HSBTABLE_LEN) {
-			PWM_RED = pgm_read_byte(&hsbtable[3*HSBTABLE_LEN - 1 - anim_step]);
-			PWM_GREEN = 0;
-			PWM_BLUE = pgm_read_byte(&hsbtable[anim_step - 2*HSBTABLE_LEN]);
+			PWM_BLUE = pgm_read_byte(&hsbtable[3*HSBTABLE_LEN - 1 - anim_step]);
 		}
+		else if (anim_step < 4*HSBTABLE_LEN) {
+			PWM_GREEN = pgm_read_byte(&hsbtable[anim_step - 3*HSBTABLE_LEN]);
+		}
+		else if (anim_step < 5*HSBTABLE_LEN) {
+			PWM_RED = pgm_read_byte(&hsbtable[5*HSBTABLE_LEN - 1 - anim_step]);
+		}
+		else if (anim_step < 6*HSBTABLE_LEN) {
+			PWM_BLUE = pgm_read_byte(&hsbtable[anim_step - 5*HSBTABLE_LEN]);
+		}
+	} else if (mode == FASTRGB2 || mode == SLOWRGB2) {
+		if (anim_step < HSBTABLE2_LEN) {
+			PWM_RED = pgm_read_byte(&hsbtable2[anim_step]);
+			PWM_GREEN = pgm_read_byte(&hsbtable2[HSBTABLE2_LEN - 1 - anim_step]);
+		}
+		else if (anim_step < 2*HSBTABLE2_LEN) {
+			PWM_GREEN = pgm_read_byte(&hsbtable2[anim_step - HSBTABLE2_LEN]);
+			PWM_BLUE = pgm_read_byte(&hsbtable2[2*HSBTABLE2_LEN - 1 - anim_step]);
+		}
+		else if (anim_step < 3*HSBTABLE2_LEN) {
+			PWM_RED = pgm_read_byte(&hsbtable2[3*HSBTABLE2_LEN - 1 - anim_step]);
+			PWM_BLUE = pgm_read_byte(&hsbtable2[anim_step - 2*HSBTABLE2_LEN]);
+		}
+	}
+	if (mode >= SLOWRGB) {
 		if (OCR0A)
 			TCCR0A |= _BV(COM0A1);
 		else
@@ -191,7 +233,7 @@ void System::loop()
 			TCCR1A &= ~_BV(COM1B1);
 	}
 
-	if (mode == FASTRGB || mode == SLOWRGB || btn_debounce) {
+	if (mode >= SLOWRGB || btn_debounce) {
 		idle();
 	} else {
 		sleep();
@@ -231,9 +273,9 @@ ISR(TIMER0_OVF_vect)
 {
 	static uint8_t slowdown = 0;
 	if (++slowdown == 10) {
-		if (++blinkencat.anim_step_fine == 3*HSBTABLE_LEN) {
+		if (++blinkencat.anim_step_fine == HSBTABLE_MAX) {
 			blinkencat.anim_step_fine = 0;
-			if (++blinkencat.anim_step_coarse == 3*HSBTABLE_LEN) {
+			if (++blinkencat.anim_step_coarse == HSBTABLE_MAX) {
 				blinkencat.anim_step_coarse = 0;
 			}
 		}
