@@ -36,13 +36,6 @@ System blinkencat;
 #define PWM_BLUE OCR0A
 
 /*
-const uint8_t pwmtable[32] PROGMEM = {
-	0, 1, 2, 2, 2, 3, 3, 4, 5, 6, 7, 8, 10, 11, 13, 16, 19, 23,
-	27, 32, 38, 45, 54, 64, 76, 91, 108, 128, 152, 181, 215, 255
-};
-*/
-
-/*
 // cos
 #define HSBTABLE_LEN 80
 #define HSBTABLE_MAX (3*HSBTABLE_LEN)
@@ -55,7 +48,10 @@ uint8_t const hsbtable[80] PROGMEM = {
 };
 */
 
-// linear
+/*
+ * Linear fading
+ * print([int(round(2**(np.log2(256) * (84-x) / 84) - 1)) for x in range(84)])
+ */
 #define HSBTABLE2_LEN 84
 #define HSBTABLE2_MAX (3*HSBTABLE_LEN)
 uint8_t const hsbtable2[84] PROGMEM = {
@@ -66,7 +62,10 @@ uint8_t const hsbtable2[84] PROGMEM = {
 	0, 0, 0, 0, 0
 };
 
-// linear for non-powerconscious HSB
+/*
+ * Linear fading for non-powerconscious HSB
+ * print([int(round(2**(np.log2(256) * (42-x) / 42) - 1)) for x in range(42)])
+ */
 #define HSBTABLE_LEN 42
 #define HSBTABLE_MAX (6*HSBTABLE_LEN)
 uint8_t const hsbtable[42] PROGMEM = {
