@@ -253,7 +253,7 @@ void System::debounce_start(void)
 		btn_debounce = 1;
 		wdt_reset();
 		WDTCSR = _BV(WDE) | _BV(WDCE);
-		WDTCSR = _BV(WDIE) | _BV(WDP1) | _BV(WDP0);
+		WDTCSR = _BV(WDIE) | _BV(WDP2);
 	}
 }
 
@@ -261,6 +261,11 @@ void System::debounce_done(void)
 {
 	btn_debounce = 0;
 	wdt_disable();
+	// long press? -> turn off
+	if (!(PIND & _BV(PD2))) {
+		mode_changed = 1;
+		blinkencat.mode = OFF;
+	}
 }
 
 ISR(WDT_OVERFLOW_vect)
