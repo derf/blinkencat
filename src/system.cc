@@ -124,7 +124,7 @@ void System::loop()
 	uint8_t anim_step = 0;
 	if (mode_changed) {
 		mode_changed = 0;
-		if (mode >= SLOWRGB) {
+		if ((mode == SLOWRGB) || (mode >= FASTRGB)) {
 			PORTD &= ~BIT_WW;
 			PORTB = 0;
 			// 8 bit fast PWM on OC0A, OC1A, OC1B
@@ -149,6 +149,11 @@ void System::loop()
 				break;
 			case WARMWHITE:
 				PORTD |= BIT_WW;
+				PORTB = 0;
+				break;
+			case SUN:
+				PORTD |= BIT_WW;
+				PORTB = BIT_RED | BIT_GREEN | BIT_BLUE;
 				break;
 			case RED:
 				PORTD &= ~BIT_WW;
@@ -169,22 +174,18 @@ void System::loop()
 			case CYAN:
 				PORTB = BIT_GREEN | BIT_BLUE;
 				break;
-			case SUN:
-				PORTD |= BIT_WW;
-				PORTB = BIT_RED | BIT_GREEN | BIT_BLUE;
-				break;
 			default:
 				break;
 		}
 	}
 
-	if (mode == FASTRGB || mode == FASTRGB2) {
+	if ((mode == FASTRGB) || (mode == FASTRGB2)) {
 		anim_step = anim_step_fine;
-	} else if (mode == SLOWRGB || mode == SLOWRGB2) {
+	} else if ((mode == SLOWRGB) || (mode == SLOWRGB2)) {
 		anim_step = anim_step_coarse;
 	}
 
-	if (mode == FASTRGB || mode == SLOWRGB) {
+	if ((mode == FASTRGB) || (mode == SLOWRGB)) {
 		if (anim_step < HSBTABLE_LEN) {
 			PWM_GREEN = pgm_read_byte(&hsbtable[HSBTABLE_LEN - 1 - anim_step]);
 		}
@@ -203,7 +204,7 @@ void System::loop()
 		else if (anim_step < 6*HSBTABLE_LEN) {
 			PWM_BLUE = pgm_read_byte(&hsbtable[anim_step - 5*HSBTABLE_LEN]);
 		}
-	} else if (mode == FASTRGB2 || mode == SLOWRGB2) {
+	} else if ((mode == FASTRGB2) || (mode == SLOWRGB2)) {
 		if (anim_step < HSBTABLE2_LEN) {
 			PWM_RED = pgm_read_byte(&hsbtable2[anim_step]);
 			PWM_GREEN = pgm_read_byte(&hsbtable2[HSBTABLE2_LEN - 1 - anim_step]);
@@ -217,7 +218,7 @@ void System::loop()
 			PWM_BLUE = pgm_read_byte(&hsbtable2[anim_step - 2*HSBTABLE2_LEN]);
 		}
 	}
-	if (mode >= SLOWRGB) {
+	if ((mode == SLOWRGB) || (mode >= FASTRGB)) {
 		if (OCR0A)
 			TCCR0A |= _BV(COM0A1);
 		else
@@ -232,10 +233,10 @@ void System::loop()
 			TCCR1A &= ~_BV(COM1B1);
 	}
 
-	if (mode >= SLOWRGB || btn_debounce) {
-		idle();
-	} else {
+	if (mode == OFF) {
 		sleep();
+	} else {
+		idle();
 	}
 }
 
