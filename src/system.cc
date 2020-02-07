@@ -74,6 +74,20 @@ uint8_t const hsbtable[42] PROGMEM = {
 	0, 0
 };
 
+uint8_t const energytable[12] PROGMEM = {
+	2, // WARMWHITE
+	3, // SLOWRGB
+	9, // SUN
+	3, // RED
+	2, // GREEN
+	2, // BLUE
+	5, // YELLOW
+	5, // MAGENTA
+	4, // CYAN
+	3, // FASTRGB
+	1, // SLOWRGB2
+	1  // FASTRGB2
+};
 
 void System::initialize()
 {
@@ -133,14 +147,21 @@ void System::loop()
 			TCCR1A = _BV(COM1A1) | _BV(COM1B1) | _BV(WGM10);
 			TCCR1B = _BV(WGM12) | _BV(CS00);
 
-			// interrupt on Timer 0 overflow
+			// interrupt on Timer 0 overflow (31.25 kHz)
 			TIMSK = _BV(TOIE0);
-		} else {
+		} else if (mode == OFF) {
 			TCCR0A = 0;
 			TCCR0B = 0;
 			TCCR1A = 0;
 			TCCR1B = 0;
 			TIMSK = 0;
+		} else {
+			TCCR0A = _BV(WGM01) | _BV(WGM00);
+			TCCR0B = _BV(CS00);
+			TCCR1A = 0;
+			TCCR1B = 0;
+			// interrupt on Timer 0 overflow (31.25 kHz)
+			TIMSK = _BV(TOIE0);
 		}
 		switch (mode) {
 			case OFF:
@@ -236,6 +257,20 @@ void System::loop()
 	if (mode == OFF) {
 		sleep();
 	} else {
+		if (tick_18s) {
+			tick_18s = 0;
+			energy_j -= pgm_read_byte(&energytable[mode - 1]);
+		}
+		if (energy_j < 0) {
+			mode_changed = 1;
+			energy_j = -1;
+
+			PORTD &= ~BIT_WW;
+			PORTB = BIT_RED;
+			_delay_ms(50);
+
+			mode = OFF;
+		}
 		idle();
 	}
 }
@@ -277,14 +312,26 @@ ISR(WDT_OVERFLOW_vect)
 ISR(TIMER0_OVF_vect)
 {
 	static uint8_t slowdown = 0;
+	static uint8_t slowdown2 = 0;
+	static uint8_t slowdown3 = 0;
 	if (++slowdown == 10) {
+		slowdown = 0;
+		// 3.125 kHz
 		if (++blinkencat.anim_step_fine == HSBTABLE_MAX) {
 			blinkencat.anim_step_fine = 0;
 			if (++blinkencat.anim_step_coarse == HSBTABLE_MAX) {
 				blinkencat.anim_step_coarse = 0;
 			}
 		}
-		slowdown = 0;
+		if (++slowdown2 == 255) {
+			slowdown2 = 0;
+			// 12.25 Hz
+			if (++slowdown3 == 221) {
+				slowdown3 = 0;
+				// ~55.5 mHz == (1/18) Hz
+				blinkencat.tick_18s = 1;
+			}
+		}
 	}
 }
 
@@ -295,6 +342,7 @@ ISR(PCINT2_vect)
 	}
 	if (PIND & _BV(PD3)) {
 		blinkencat.is_charging = 1;
+		blinkencat.setEnergyFull();
 		PORTD |= _BV(PD1);
 	} else {
 		blinkencat.is_charging = 0;
