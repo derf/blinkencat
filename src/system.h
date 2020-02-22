@@ -15,7 +15,8 @@ class System {
 		uint8_t mode_changed;
 
 		// 1 Ah @ 3.7V = 13 kJ
-		int16_t const energy_full = 13000;
+		// adjusted for battery wear&tear and increased cut-off voltage: 5 kJ
+		int16_t const energy_full = 5000;
 		int16_t energy_j;
 
 	public:
