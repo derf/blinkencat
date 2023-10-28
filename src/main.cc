@@ -1,3 +1,8 @@
+/*
+ * Copyright 2023 Birte Kristina Friesel
+ *
+ * SPDX-License-Identifier: BSD-2-Clause
+ */
 #include <avr/io.h>
 #include <stdlib.h>
 

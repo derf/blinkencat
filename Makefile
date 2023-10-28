@@ -1,3 +1,7 @@
+# Copyright 2023 Birte Kristina Friesel
+#
+# SPDX-License-Identifier: BSD-2-Clause
+
 MCU_AVRDUDE ?= t2313
 MCU_AVRGCC ?= attiny2313a
 AVRDUDE_PROGRAMMER ?= usbasp
