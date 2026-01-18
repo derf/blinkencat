@@ -66,3 +66,12 @@ Power consumption in operation:
 * warm white: 128 mW
 * RGB: 180 mW
 * all LEDs on: 536 mW
+
+## References
+
+Mirrors of this repository are maintained at the following locations:
+
+* [Chaosdorf](https://chaosdorf.de/git/derf/blinkencat)
+* [Codeberg](https://codeberg.org/derf/blinkencat)
+* [Finalrewind](https://git.finalrewind.org/derf/blinkencat)
+* [GitHub](https://github.com/derf/blinkencat)
