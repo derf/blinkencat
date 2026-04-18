@@ -71,7 +71,6 @@ Power consumption in operation:
 
 Mirrors of this repository are maintained at the following locations:
 
-* [Chaosdorf](https://chaosdorf.de/git/derf/blinkencat)
 * [Codeberg](https://codeberg.org/derf/blinkencat)
 * [Finalrewind](https://git.finalrewind.org/derf/blinkencat)
 * [GitHub](https://github.com/derf/blinkencat)
